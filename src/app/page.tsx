@@ -28,7 +28,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0f]/80 backdrop-blur-md">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="text-2xl font-bold text-cyan-400">GEO Scout</div>
+          <Link href="/" className="text-2xl font-bold text-cyan-400 hover:text-cyan-300 transition-colors">GEO Scout</Link>
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-gray-400 hover:text-white transition">Fonctionnalités</a>
             <a href="#pricing" className="text-gray-400 hover:text-white transition">Tarifs</a>
