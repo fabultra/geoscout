@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -34,8 +35,12 @@ export default function LandingPage() {
             <a href="#faq" className="text-gray-400 hover:text-white transition">FAQ</a>
           </nav>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="text-gray-400 hover:text-white">Connexion</Button>
-            <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium">Essai gratuit</Button>
+            <Link href="/login">
+              <Button variant="ghost" className="text-gray-400 hover:text-white">Connexion</Button>
+            </Link>
+            <Link href="/register">
+              <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium">Essai gratuit</Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -54,9 +59,11 @@ export default function LandingPage() {
           Découvrez ce que les LLMs disent de votre marque.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium text-lg px-8">
-            Analyser mon site gratuitement
-          </Button>
+          <Link href="/register">
+            <Button size="lg" className="bg-cyan-500 hover:bg-cyan-600 text-black font-medium text-lg px-8">
+              Analyser mon site gratuitement
+            </Button>
+          </Link>
           <Button size="lg" variant="outline" className="border-gray-700 text-white hover:bg-white/5">
             Voir la démo
           </Button>
@@ -180,11 +187,13 @@ export default function LandingPage() {
                     {plan.llmCount} LLMs
                   </li>
                 </ul>
-                <Button 
-                  className={`w-full ${plan.id === 'pro' ? 'bg-cyan-500 hover:bg-cyan-600 text-black' : 'bg-white/10 hover:bg-white/20'}`}
-                >
-                  {plan.price === 0 ? 'Commencer gratuitement' : 'Choisir ce plan'}
-                </Button>
+                <Link href="/register">
+                  <Button 
+                    className={`w-full ${plan.id === 'pro' ? 'bg-cyan-500 hover:bg-cyan-600 text-black' : 'bg-white/10 hover:bg-white/20'}`}
+                  >
+                    {plan.price === 0 ? 'Commencer gratuitement' : 'Choisir ce plan'}
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           ))}
