@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function RegisterPage() {
@@ -111,13 +110,14 @@ export default function RegisterPage() {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="terms" 
+              <input
+                type="checkbox"
+                id="terms"
                 checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                className="border-white/20"
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="w-4 h-4 accent-cyan-500 bg-white/5 border-white/20 rounded"
               />
-              <Label htmlFor="terms" className="text-sm text-gray-400">
+              <Label htmlFor="terms" className="text-sm text-gray-400 cursor-pointer">
                 J'accepte les{' '}
                 <Link href="/terms" className="text-cyan-400 hover:underline">
                   conditions d'utilisation
