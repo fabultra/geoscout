@@ -1,169 +1,142 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string }>({});
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
-  const validatePassword = (pwd: string): string | null => {
-    if (pwd.length < 8) {
-      return 'Le mot de passe doit contenir au moins 8 caractères';
-    }
-    if (!/[A-Z]/.test(pwd)) {
-      return 'Le mot de passe doit contenir au moins une majuscule';
-    }
-    if (!/[0-9]/.test(pwd)) {
-      return 'Le mot de passe doit contenir au moins un chiffre';
-    }
-    return null;
-  };
-
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-    const error = validatePassword(value);
-    setErrors((prev) => ({ ...prev, password: error || undefined }));
-  };
-
-  const handleConfirmPasswordChange = (value: string) => {
-    setConfirmPassword(value);
-    if (value !== password) {
-      setErrors((prev) => ({ ...prev, confirmPassword: 'Les mots de passe ne correspondent pas' }));
-    } else {
-      setErrors((prev) => ({ ...prev, confirmPassword: undefined }));
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setErrors((prev) => ({ ...prev, password: passwordError }));
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
       return;
     }
 
-    if (password !== confirmPassword) {
-      setErrors((prev) => ({ ...prev, confirmPassword: 'Les mots de passe ne correspondent pas' }));
+    if (password.length < 8) {
+      setError('Le mot de passe doit contenir au moins 8 caractères');
       return;
     }
 
     if (!acceptTerms) {
-      alert('Vous devez accepter les conditions d\'utilisation');
+      setError('Vous devez accepter les conditions d\'utilisation');
       return;
     }
 
-    // TODO: Implémenter la logique d'inscription avec Supabase
-    console.log('Register:', { email, password });
+    setLoading(true);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+    } else {
+      router.push('/register/success');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex items-center justify-center px-4">
+    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-white/5 border-white/10">
-        <CardHeader className="text-center space-y-4">
-          <div className="text-3xl font-bold text-cyan-400">GEO Scout</div>
-          <CardTitle className="text-2xl">Créer un compte</CardTitle>
+        <CardHeader className="text-center">
+          <Link href="/" className="text-2xl font-bold text-cyan-400 mb-2">GEO Scout</Link>
+          <CardTitle className="text-white">Créer un compte</CardTitle>
           <CardDescription className="text-gray-400">
-            Commencez votre essai gratuit
+            Commencez à analyser votre visibilité IA
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-md text-red-400 text-sm">
+                {error}
+              </div>
+            )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-white">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="votre@email.com"
+                placeholder="vous@exemple.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500"
+                className="bg-white/5 border-white/10 text-white"
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
+              <Label htmlFor="password" className="text-white">Mot de passe</Label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
                 value={password}
-                onChange={(e) => handlePasswordChange(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500"
+                className="bg-white/5 border-white/10 text-white"
               />
-              {errors.password && (
-                <p className="text-sm text-red-400">{errors.password}</p>
-              )}
-              <p className="text-xs text-gray-500">
-                Min. 8 caractères, 1 majuscule, 1 chiffre
-              </p>
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Label htmlFor="confirmPassword" className="text-white">Confirmer le mot de passe</Label>
               <Input
                 id="confirmPassword"
                 type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
-                onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-cyan-500"
+                className="bg-white/5 border-white/10 text-white"
               />
-              {errors.confirmPassword && (
-                <p className="text-sm text-red-400">{errors.confirmPassword}</p>
-              )}
             </div>
-
-            <div className="flex items-start space-x-2">
-              <Checkbox
-                id="terms"
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="terms" 
                 checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked === true)}
-                className="border-white/20 data-[state=checked]:bg-cyan-500 data-[state=checked]:border-cyan-500 mt-1"
-                required
+                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                className="border-white/20"
               />
-              <Label
-                htmlFor="terms"
-                className="text-sm text-gray-400 cursor-pointer"
-              >
+              <Label htmlFor="terms" className="text-sm text-gray-400">
                 J'accepte les{' '}
-                <Link
-                  href="/terms"
-                  className="text-cyan-400 hover:text-cyan-300 transition-colors"
-                >
+                <Link href="/terms" className="text-cyan-400 hover:underline">
                   conditions d'utilisation
                 </Link>
               </Label>
             </div>
-
-            <Button
-              type="submit"
+            <Button 
+              type="submit" 
               className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-medium"
+              disabled={loading}
             >
-              Créer mon compte
+              {loading ? 'Création...' : 'Créer mon compte'}
             </Button>
-
-            <div className="text-center text-sm text-gray-400">
+            <p className="text-center text-gray-400 text-sm">
               Déjà un compte?{' '}
-              <Link
-                href="/login"
-                className="text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
-              >
+              <Link href="/login" className="text-cyan-400 hover:underline">
                 Se connecter
               </Link>
-            </div>
+            </p>
           </form>
         </CardContent>
       </Card>
