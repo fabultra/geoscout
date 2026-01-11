@@ -109,7 +109,8 @@ export async function POST(
     const competitors = await extractCompetitorsFromResponses(
       allResponses, 
       analysis.brand_name || '', 
-      industry
+      industry,
+      allContent
     );
 
     // Save competitors
